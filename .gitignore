@@ -1,2 +1,8 @@
-venv/
+﻿venv/
 node_modules/
+.env
+dump.rdb
+celerybeat-schedule*
+exports/
+__pycache__/
+*.pyc

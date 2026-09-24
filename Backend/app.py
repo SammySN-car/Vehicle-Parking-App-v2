@@ -1,26 +1,28 @@
-from flask import Flask
+﻿from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from flask_restful import Api
 from flask_jwt_extended import JWTManager
 from flask_mail import Mail
 from Backend.utils.db import db
+from dotenv import load_dotenv
+load_dotenv()
 import os
 from werkzeug.security import generate_password_hash
 
 
 app=Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}}, supports_credentials=True)
-app.config['MAIL_SERVER']='smtp.gmail.com'
-app.config['MAIL_PORT']=465
-app.config['MAIL_USERNAME']='[Your Email_id]'
-app.config['MAIL_PASSWORD']='[Your Password]'
-app.config['MAIL_USE_TLS']=False
-app.config['MAIL_USE_SSL']=True
+app.config['MAIL_SERVER']=os.getenv('MAIL_SERVER', 'smtp.gmail.com')
+app.config['MAIL_PORT']=int(os.getenv('MAIL_PORT', 465))
+app.config['MAIL_USERNAME']=os.getenv('MAIL_USERNAME')
+app.config['MAIL_PASSWORD']=os.getenv('MAIL_PASSWORD')
+app.config['MAIL_USE_TLS']=os.getenv('MAIL_USE_TLS', 'False').lower() == 'true'
+app.config['MAIL_USE_SSL']=os.getenv('MAIL_USE_SSL', 'True').lower() == 'true'
 
 mail=Mail(app)
 
-app.config['JWT_SECRET_KEY']='this-is-my-secret-key'
+app.config['JWT_SECRET_KEY']=os.getenv('JWT_SECRET_KEY', 'dev-only-change-me')
 app.config['JWT_TOKEN_LOCATION'] = ['headers']
 app.config['JWT_HEADER_NAME'] = 'Authorization'
 app.config['JWT_HEADER_TYPE'] = 'Bearer'
@@ -37,7 +39,7 @@ from Backend.models.database import Users,ParkingLot,ParkingSpot,ReserveParkingS
 
 with app.app_context():
     db.create_all()
-    print("✅ DB created")
+    print("âœ… DB created")
     if not Users.query.filter_by(role='admin').first():
         passwor='admin'
         adm=Users(
@@ -50,7 +52,7 @@ with app.app_context():
         )
         db.session.add(adm)
         db.session.commit()
-        print("✅ Admin user created")
+        print("âœ… Admin user created")
 from Backend.routes.auth import Register,Login
 from Backend.routes.admin_lot import AddLot,EditLot,DeleteLot,ViewLots
 from Backend.routes.admin_search import AdminSearch
